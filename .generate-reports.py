@@ -57,23 +57,21 @@ TOKEN_ENV_VARIABLE_NAME = 'REPORTS_GITHUB_ACCESS_TOKEN'
 # parses arguments
 def main():
     parser = argparse.ArgumentParser(description='QBiC Javadoc Generator.', prog='generate-javadocs.py', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-s', '--site-dir', required=True, default=MAVEN_SITE_DIR,
+    parser.add_argument('-s', '--site-dir', default=MAVEN_SITE_DIR,
         help='Directory where Maven generates reports after executing "mvn site".')
-    parser.add_argument('-b', '--base-output-dir', required=True, default=BASE_REPORT_DIR,
-        help='Base directory where the reports will be copied.')
-    parser.add_argument('-o', '--output-dir', required=True, 
+    parser.add_argument('-b', '--base-output-dir', default=BASE_REPORT_DIR,
+        help='Base directory where the reports will be copied.')    
+    parser.add_argument('-p', '--pages-branch', default="gh-pages",
+        help='Name of the git branch on which the reports will be pushed.')
+    parser.add_argument('-u', '--username-var-name', default=USERNAME_ENV_VARIABLE_NAME,
+        help='Name of the environment variable holding the GitHub username used to push changes in reports.')
+    parser.add_argument('-a', '--access-token-var-name', default=TOKEN_ENV_VARIABLE_NAME,
+        help='Name of the environment variable holding the GitHub personal access token used to push changes in reports.')
+    parser.add_argument('output_dir', 
         help='Name of the folder, relative to the base output directory, where reports will be copied to. \
               This folder will be first cleared of its contents before the generated reports are copied.')
-    parser.add_argument('-p', '--pages-branch', required=True, default="gh-pages",
-        help='Name of the git branch on which the reports will be pushed.')
-    parser.add_argument('-u', '--username-var-name', required=True, default=USERNAME_ENV_VARIABLE_NAME,
-        help='Name of the environment variable holding the GitHub username used to push changes in reports.')
-    parser.add_argument('-a', '--access-token-var-name', required=True, default=TOKEN_ENV_VARIABLE_NAME,
-        help='Name of the environment variable holding the GitHub personal access token used to push changes in reports.')
-    parser.add_argument('-r', '--repo-slug', required=True,
-        help='Slug of the repository for which reports are being built.')
-    parser.add_argument('-m', '--commit-messages', required=True, nargs='+',
-        help='Messages to use when committing changes.')
+    parser.add_argument('repo_slug', help='Slug of the repository for which reports are being built.')
+    parser.add_argument('commit_message', nargs='+', help='Message(s) to use when committing changes.')
     args = parser.parse_args()
 
     # check that the required environment variables have been defined
