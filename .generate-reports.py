@@ -87,8 +87,8 @@ def main():
 
     # since this will run on Travis, we cannot assume that we can change the current local repo without breaking anything
     # the safest way would be to clone this same repository on a temporary folder and leave the current local repo alone
-    print('Cloning {} in a temporary folder'.format(args.repo_slug))
     working_dir = tempfile.mkdtemp()
+    print('Cloning {} into temporary folder {}'.format(args.repo_slug, working_dir))
     custom_remote = build_remote(vars(**args))  # never change, python!
     execute(['git', 'clone', custom_remote, working_dir], 'Could not clone {} in directory {}'.format(args.repo_slug, working_dir))
     
