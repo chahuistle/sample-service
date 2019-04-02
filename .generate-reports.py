@@ -120,7 +120,7 @@ def main():
     # build the git-commit command and commit changes
     print('Pushing changes upstream')
     git_commit_command = ['git', 'commit']
-    for commit_message in args.commit_messages:
+    for commit_message in args.commit_message:
         git_commit_command.extend(['-m', commit_message])
     execute(git_commit_command, 'Could not commit changes')
 
