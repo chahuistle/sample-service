@@ -89,7 +89,7 @@ def main():
     # the safest way would be to clone this same repository on a temporary folder and leave the current local repo alone
     working_dir = tempfile.mkdtemp()
     print('Cloning {} into temporary folder {}'.format(args.repo_slug, working_dir))
-    custom_remote = build_remote(vars(**args))  # never change, python!
+    custom_remote = build_remote(vars(args))  # never change, python!
     execute(['git', 'clone', custom_remote, working_dir], 'Could not clone {} in directory {}'.format(args.repo_slug, working_dir))
     
     # change to the pages branch
