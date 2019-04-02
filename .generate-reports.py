@@ -104,6 +104,7 @@ def main():
     # accidentally the whole target/site folder (well, yes, but actually, no, because we need only its contents)
     print('Moving contents of {} to {}'.format(args.site_dir, report_output_dir))
     for f in os.listdir(args.site_dir):
+        print('    Moving {}'.format(f))
         shutil.move(os.path.join(args.site_dir, f), report_output_dir)
     
     # make sure to add a remote with the credentials provided via environment variables
