@@ -89,7 +89,7 @@ def main():
     # the safest way would be to clone this same repository on a temporary folder and leave the current local repo alone
     print('Cloning {} in a temporary folder'.format(args.repo_slug))
     working_dir = tempfile.mkdtemp()
-    custom_remote = build_remote(**args)
+    custom_remote = build_remote(vars(**args))  # never change, python!
     execute(['git', 'clone', custom_remote, working_dir], 'Could not clone {} in directory {}'.format(args.repo_slug, working_dir))
     
     # change to the pages branch
@@ -114,6 +114,7 @@ def main():
         print('    Moving {}'.format(f))
         shutil.move(os.path.join(args.site_dir, f), report_output_dir)
     
+    # TODO: do we really need this if we are cloning the repo with credentials?
     # make sure to add a remote with the credentials provided via environment variables
     print('Configuring remote using provided credentials')
     execute(['git', '-C', working_dir, 'remote', 'rm', 'origin'], 'Could not remove "origin" remote.')
