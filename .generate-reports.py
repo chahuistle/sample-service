@@ -79,12 +79,14 @@ def main():
         raise Exception('At least one of the required environment variables is missing. See comments on .generate-reports.py for further information.')
 
     # generate the reports using maven
+    print('Generating reports using "mvn site"')
     execute(['mvn', 'site'], 'Could not generate reports')
     # check that the reports are where they should be (you never know!)
     if not os.path.exists(args.site_dir) or not os.path.isdir(args.site_dir):
         raise Exception('Maven site folder {} does not exist or is not a directory.'.format(args.site_dir))
 
     # change to the pages branch
+    print('Changing to branch {}'.format(args.pages_branch))
     execute(['git', 'checkout', '-B', args.pages_branch], 'Could not checkout branch {}.'.format(args.pages_branch))
 
     # remove the contents of the output folder before copying the generated reports
@@ -93,24 +95,30 @@ def main():
         if not os.path.isdir(report_output_dir):
             raise Exception('Output destination {} exists and is not a directory.'.format(report_output_dir))
         # output path exists and it's a folder, we can safely delete it
+        print('Removing {}'.format(report_output_dir))
         shutil.rmtree(report_output_dir)
     # we know the output folder doesn't exist, so we can recreate it
+    print('Creating {}'.format(report_output_dir))
     os.makedirs(report_output_dir)
 
     # accidentally the whole target/site folder (well, yes, but actually, no, because we need only its contents)
+    print('Moving contents of {} to {}'.format(args.site_dir, report_output_dir))
     for f in os.listdir(args.site_dir):
-        shutil.move(f, report_output_dir)
+        shutil.move(os.path.join(args.site_dir, f), report_output_dir)
     
     # make sure to add a remote with the credentials provided via environment variables
+    print('Configuring remote using provided credentials')
     execute(['git', 'remote', 'rm', 'origin'], 'Could not remove "origin" remote.')
     execute(['git', 'remote', 'add', 'origin', 
              'https://{}:{}@github.com/{}'.format(os.environ[args.username_var_name], os.environ[args.access_token_var_name], args.repo_slug)], 
              'Could not add "origin" remote with custom credentials')
 
     # add changes to the index
+    print('Adding changes to the index')
     execute(['git', 'add', report_output_dir], 'Could not add {} to the repository\'s index.')
     
     # build the git-commit command and commit changes
+    print('Pushing changes upstream')
     git_commit_command = ['git', 'commit']
     for commit_message in args.commit_messages:
         git_commit_command.extend(['-m', commit_message])
