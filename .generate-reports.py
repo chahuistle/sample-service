@@ -169,12 +169,16 @@ def build_remote(args):
 
 
 # executes an external command, raises an exception if the return code is not 0
-def execute(command, error_message='Error encountered while executing command'):
+# stderr/stdout are hidden by default to avoid leaking credentials into log files in Travis
+# Important: do not commit code that might print sensitive information, this might end up in a log somewhere outside our control
+def execute(command, error_message='Error encountered while executing command', hide_stderr=true, hide_stdout=true):
     # do not print the command! this might expose usernames/passwords/tokens!
     completed_process = subprocess.run(command, capture_output=True)
     if (completed_process.returncode != 0):
         raise Exception('{}\n  Exit code={}\n  stderr={}\n  stdout{}'.format(
-            error_message, completed_process.returncode, completed_process.stderr, completed_process.stdout))
+            error_message, completed_process.returncode, 
+            '***hidden***' if hide_stderr else completed_process.stderr, 
+            '***hidden***' if hide_stdout else completed_process.stdout))
 
 if __name__ == "__main__":
     main()
