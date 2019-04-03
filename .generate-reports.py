@@ -52,8 +52,8 @@ BASE_REPORT_DIR = 'reports'
 # credentials are given via environment variables
 USERNAME_ENV_VARIABLE_NAME = 'REPORTS_GITHUB_USERNAME'
 TOKEN_ENV_VARIABLE_NAME = 'REPORTS_GITHUB_ACCESS_TOKEN'
-# files that should not be deleted when cleaning the working folder (in gh-pages)
-UNTOUCHABLE_FILES = ['.git']
+# compiled regex to match files that should not be deleted when cleaning the working folder (in gh-pages)
+UNTOUCHABLE_FILES_MATCHER = re.compile('^\.git.*')
 # regex to validate output folder
 REPORTS_VERSION_REGEX = '^(development|[vV]?\d+\.\d+\.\d+)$'
 
@@ -231,8 +231,8 @@ def push_upstream(working_dir, args):
 
 # Whether it is safe to delete the given path, we won't delete important files/folders (such as .git)
 # or the base output directory
-def should_delete(path, args):    
-    return path not in UNTOUCHABLE_FILES and path != args.base_output_dir
+def should_delete(path, args):
+    return not UNTOUCHABLE_FILES_MATCHER.match(path) and path != args.base_output_dir
 
 
 # Builds a git remote using environment variables for credentials and the repo slug
