@@ -89,12 +89,27 @@ def main():
     # the safest way would be to clone this same repository on a temporary folder and leave the current local repo alone
     working_dir = tempfile.mkdtemp()
     print('Cloning {} into temporary folder {}'.format(args.repo_slug, working_dir))
-    custom_remote = build_remote(vars(args))  # never change, python!
+    custom_remote = build_remote(args)
     execute(['git', 'clone', custom_remote, working_dir], 'Could not clone {} in directory {}'.format(args.repo_slug, working_dir))
     
     # change to the pages branch
     print('Changing to branch {}'.format(args.pages_branch))
     execute(['git', '-C', working_dir, 'checkout', '-B', args.pages_branch], 'Could not checkout branch {}.'.format(args.pages_branch))
+
+    # since branches have a parent commit, we have to remove everything but:
+    #  * hidden files (e.g., .git, .gitignore) 
+    #  * the base output directory (args.base_output_dir) 
+    # otherwise, the gh-pages branch will contain other non-report files!
+    print('Cleaning local repository ({}) of non-reports files'.format(working_dir))
+    for f in os.listdir(working_dir):
+        if should_delete(f, args):
+            print('    Deleting {} from {} branch'.format(f, args.pages_branch))
+            if os.path.isdir(f):
+                shutil.rmtree(f)
+            else:
+                os.remove(f)
+        else:
+            print('    Ignoring file/folder {}'.format(f))
 
     # remove the contents of the output folder before copying the generated reports
     report_output_dir = os.path.join(working_dir, args.base_output_dir, args.output_dir)
@@ -140,9 +155,15 @@ def main():
     shutil.rmtree(working_dir)
 
 
+# whether it is safe to delete the given path, we won't delete hidden files/folders (such as .git, .gitignore)
+# or the base output directory
+def should_delete(path, args):
+    return not path.startswith('.') and path != args.base_output_dir
+
+
 # builds a git remote using environment variables for credentials and the repo slug
-def build_remote(**kwargs):
-    return 'https://{}:{}@github.com/{}'.format(os.environ[kwargs.username_var_name], os.environ[kwargs.access_token_var_name], kwargs.repo_slug)
+def build_remote(args):
+    return 'https://{}:{}@github.com/{}'.format(os.environ[args.username_var_name], os.environ[args.access_token_var_name], args.repo_slug)
 
 
 # executes an external command, raises an exception if the return code is not 0
