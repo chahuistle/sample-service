@@ -105,11 +105,9 @@ def main():
     print('Cleaning local repository ({}) of non-reports files'.format(working_dir))
     for f in os.listdir(working_dir):
         if should_delete(f, args):
+            # instead of using OS calls to delete files/folders, use git rm to stage deletions
             print('    Deleting {} from {} branch'.format(f, args.pages_branch))
-            if os.path.isdir(f):
-                shutil.rmtree(f)
-            else:
-                os.remove(f)
+            execute(['git', '-C', working_dir, 'rm', '-r', '--ignore-unmatch', f], 'Could not remove {}.'.format(f))
         else:
             print('    Ignoring file/folder {}'.format(f))
 
@@ -120,7 +118,8 @@ def main():
             raise Exception('Output destination {} exists and is not a directory.'.format(report_output_dir))
         # output path exists and it's a folder, we can safely delete it
         print('Removing {}'.format(report_output_dir))
-        shutil.rmtree(report_output_dir)
+        execute(['git', '-C', working_dir, 'rm', '-r', '--ignore-unmatch', os.path.join(args.base_output_dir, args.output_dir)], 
+                 'Could not remove {}.'.format(report_output_dir))
     # we know the output folder doesn't exist, so we can recreate it
     print('Creating {}'.format(report_output_dir))
     os.makedirs(report_output_dir)
@@ -139,8 +138,8 @@ def main():
              'Could not add "origin" remote with custom credentials')
 
     # add changes to the index
-    print('Adding changes to the index')
-    execute(['git', '-C', working_dir, 'add', report_output_dir], 'Could not add {} to the repository\'s index.')
+    print('Staging changes for commit')
+    execute(['git', '-C', working_dir, 'add', '.'], 'Could not stage reports for commit.')
     
     # build the git-commit command and commit changes
     print('Pushing changes upstream')
