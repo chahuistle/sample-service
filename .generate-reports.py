@@ -52,6 +52,8 @@ BASE_REPORT_DIR = 'reports'
 # credentials are given via environment variables
 USERNAME_ENV_VARIABLE_NAME = 'REPORTS_GITHUB_USERNAME'
 TOKEN_ENV_VARIABLE_NAME = 'REPORTS_GITHUB_ACCESS_TOKEN'
+# files that should not be deleted when cleaning the working folder (in gh-pages)
+UNTOUCHABLE_FILES = ['.git']
 
 
 # parses arguments
@@ -97,7 +99,7 @@ def main():
     execute(['git', '-C', working_dir, 'checkout', '-B', args.pages_branch], 'Could not checkout branch {}.'.format(args.pages_branch))
 
     # since branches have a parent commit, we have to remove everything but:
-    #  * hidden files (e.g., .git, .gitignore) 
+    #  * important files (e.g., .git) 
     #  * the base output directory (args.base_output_dir) 
     # otherwise, the gh-pages branch will contain other non-report files!
     print('Cleaning local repository ({}) of non-reports files'.format(working_dir))
@@ -155,10 +157,10 @@ def main():
     shutil.rmtree(working_dir)
 
 
-# whether it is safe to delete the given path, we won't delete hidden files/folders (such as .git, .gitignore)
+# whether it is safe to delete the given path, we won't delete important files/folders (such as .git)
 # or the base output directory
-def should_delete(path, args):
-    return not path.startswith('.') and path != args.base_output_dir
+def should_delete(path, args):    
+    return path not in UNTOUCHABLE_FILES and path != args.base_output_dir
 
 
 # builds a git remote using environment variables for credentials and the repo slug
