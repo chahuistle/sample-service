@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SampleService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Sample Service</a> &gt; <a href="index.source.html" class="el_package">life.qbic.service</a> &gt; <span class="el_source">SampleService.java</span></div><h1>SampleService.java</h1><pre class="source lang-java linenums">package life.qbic.service;
+
+import life.qbic.cli.QBiCTool;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+/**
+ * Implementation of Sample Service. Its command-line arguments are contained in instances of {@link SampleCommand}.
+ *
+ * This is also just a simple test.
+ */
+public class SampleService extends QBiCTool&lt;SampleCommand&gt; {
+
+<span class="nc" id="L15">    private static final Logger LOG = LogManager.getLogger(SampleService.class);</span>
+
+    /**
+     * Constructor.
+     * 
+     * @param command an object that represents the parsed command-line arguments.
+     */
+    public SampleService(final SampleCommand command) {
+<span class="nc" id="L23">        super(command);</span>
+<span class="nc" id="L24">    }</span>
+
+    @Override
+    public void execute() {
+        // get the parsed command-line arguments
+<span class="nc" id="L29">        final SampleCommand command = super.getCommand();</span>
+
+        // TODO: do something useful with the obtained command.
+        //
+<span class="nc" id="L33">    }</span>
+
+    @Override
+    public void shutdown() {
+        // TODO: perform clean-up tasks
+        // Important: do not call System.exit. This method is executed by a &quot;shutdown hook thread&quot;
+        //            See: https://docs.oracle.com/javase/8/docs/api/java/lang/Runtime.html#exit-int-
+<span class="nc" id="L40">    }</span>
+
+    /**
+     * Determines if this service is alive.
+     * 
+     * @return {@code true} if the service is alive, {@code false} otherwise.
+     */
+    public boolean isAlive() {
+<span class="nc" id="L48">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>
