@@ -36,4 +36,13 @@ public class SampleService extends QBiCTool<SampleCommand> {
         // Important: do not call System.exit. This method is executed by a "shutdown hook thread"
         //            See: https://docs.oracle.com/javase/8/docs/api/java/lang/Runtime.html#exit-int-
     }
+
+    /**
+     * Determines if this service is alive.
+     * 
+     * @return {@code true} if the service is alive, {@code false} otherwise.
+     */
+    public boolean isAlive() {
+        return true;
+    }
 }
