@@ -7,6 +7,8 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * Implementation of Sample Service. Its command-line arguments are contained in instances of {@link SampleCommand}.
+ *
+ * This is also just a simple test.
  */
 public class SampleService extends QBiCTool<SampleCommand> {
 
