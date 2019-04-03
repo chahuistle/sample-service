@@ -71,7 +71,8 @@ def main():
         help='Name of the environment variable holding the GitHub personal access token used to push changes in reports.')
     parser.add_argument('output_dir', 
         help='Name of the folder, relative to the base output directory, where reports will be copied to. \
-              This folder will be first cleared of its contents before the generated reports are copied.')
+              This folder will be first cleared of its contents before the generated reports are copied. \
+              Recommended values are: "development" or a valid release version string (e.g., 1.0.1)')
     parser.add_argument('repo_slug', help='Slug of the repository for which reports are being built.')
     parser.add_argument('commit_message', nargs='+', help='Message(s) to use when committing changes.')
     args = parser.parse_args()
