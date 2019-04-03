@@ -95,9 +95,15 @@ def main():
     custom_remote = build_remote(args)
     execute(['git', 'clone', custom_remote, working_dir], 'Could not clone {} in directory {}'.format(args.repo_slug, working_dir))
     
-    # change to the pages branch
+    # change to the pages branch, pull changes 
+    # we need to add the gh-pages branch if it doesn't exist (git checkout -b gh-pages),
+    # but if gh-pages already exists, we need to checkout (git checkout gh-pages), luckily, 
+    # "git checkout -b branch" fails if branch already exists
     print('Changing to branch {}'.format(args.pages_branch))
-    execute(['git', '-C', working_dir, 'checkout', '-B', args.pages_branch], 'Could not checkout branch {}.'.format(args.pages_branch))
+    try:
+        execute(['git', '-C', working_dir, 'checkout', args.pages_branch])
+    except:
+        execute(['git', '-C', working_dir, 'checkout', '-b', args.pages_branch], 'Could not create branch {}'.format(args.pages_branch))
 
     # since branches have a parent commit, we have to remove everything but:
     #  * important files (e.g., .git) 
