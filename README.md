@@ -8,5 +8,6 @@ Sample Service, version 1.0.0-SNAPSHOT - Testing automatic report generation and
 Created by Winnie Pooh (winnie.the.pooh@qbic.uni-tuebingen.de).
 
 ## Description
+Just testing stuff.
 
 ## How to Install
