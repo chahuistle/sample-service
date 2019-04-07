@@ -73,8 +73,10 @@ def main():
         help='Name of the environment variable holding the GitHub personal access token used to push changes in reports.')
     parser.add_argument('-r', '--validation-regex', default=REPORTS_VERSION_REGEX,
         help='Regular expression to validate output_dir; it is assumed that report folders are named after a version.')
-    parser.add_argument('-d', '--dry-run', action='store_true',
+    parser.add_argument('--dry-run', action='store_true',
         help='If present, no changes to the remote repository (git commit/push) will be executed.')
+    parser.add_argument('--skip-cleanup', action='store_true',
+        help='Whether cleanup tasks (removing cloned repos) should be skipped.')
     parser.add_argument('output_dir', 
         help='Name of the folder, relative to the base output directory, where reports will be copied to. \
               This folder will be first cleared of its contents before the generated reports are copied. \
@@ -100,12 +102,13 @@ def main():
     clone_repo(args, working_dir, custom_remote)
     
     # reports are available only in a specific branch
-    checkout_pages_branch(args, working_dir)
+    checkout_pages_branch(working_dir, args)
 
     # since new branches have a parent commit, we have to remove everything but:
     #  * important files (e.g., .git) 
     #  * the base output directory (args.base_output_dir) 
     # otherwise, the newly created gh-pages branch will contain other non-report files!
+    # also, it is a good idea to remove everything, since we don't want lingering unused report files
     remove_unneeded_files(working_dir, args)
 
     # move rports to their place
@@ -115,11 +118,14 @@ def main():
     configure_custom_remote(working_dir, custom_remote)
 
     # add, commit, push
-    push_upstream(working_dir, args)
+    push_to_pages_branch(working_dir, args)
 
     # clean up
-    print('Removing working folder {}'.format(working_dir))
-    shutil.rmtree(working_dir)
+    if args.skip_cleanup:
+        print('Skipping cleanup of working folder {}'.format(working_dir))    
+    else:
+        print('Removing working folder {}'.format(working_dir))
+        shutil.rmtree(working_dir)
 
 
 # Sanity check
@@ -150,13 +156,13 @@ def clone_repo(args, working_dir, custom_remote):
 
 
 # Checks out the branch where reports reside (gh-pages)
-def checkout_pages_branch(args, working_dir):
+def checkout_pages_branch(working_dir, args):
     # we need to add the gh-pages branch if it doesn't exist (git checkout -b gh-pages),
     # but if gh-pages already exists, we need to checkout (git checkout gh-pages), luckily, 
-    # "git checkout -b branch" fails if branch already exists
+    # "git checkout branch" fails if branch doesn't exist
     print('Changing to branch {}'.format(args.pages_branch))
     try:
-        execute(['git', '-C', working_dir, 'checkout', args.pages_branch])
+        execute(['git', '-C', working_dir, 'checkout', args.pages_branch], exit_if_fail=False)
     except:
         execute(['git', '-C', working_dir, 'checkout', '-b', args.pages_branch], 'Could not create branch {}'.format(args.pages_branch))
 
@@ -187,7 +193,7 @@ def prepare_report_dir(working_dir, args):
         print('Removing {}'.format(report_output_dir))
         execute(['git', '-C', working_dir, 'rm', '-r', '--ignore-unmatch', os.path.join(args.base_output_dir, args.output_dir)], 
                  'Could not remove {}.'.format(report_output_dir))
-        # just in case, force deletion using OS calls
+        # just in case git doesn't remove the file (if it wasn't tracked, for instance), force deletion using OS calls
         force_delete(report_output_dir)
     # we know the output folder doesn't exist, so we can recreate it
     print('Creating {}'.format(report_output_dir))
@@ -210,7 +216,7 @@ def configure_custom_remote(working_dir, custom_remote):
 
 
 # Adds, commits and pushes changes
-def push_upstream(working_dir, args):
+def push_to_pages_branch(working_dir, args):
     if args.dry_run:
         print('(running in dry run mode) Local/remote repository will not be modified')
     else:
@@ -249,17 +255,25 @@ def force_delete(file):
             os.remove(file)
 
 
-# Executes an external command, raises an exception if the return code is not 0
-# stderr/stdout are hidden by default to avoid leaking credentials into log files in Travis
-# Important: do not commit code that might print sensitive information, this might end up in a log somewhere outside our control
-def execute(command, error_message='Error encountered while executing command', hide_stderr=True, hide_stdout=True):
-    # do not print the command! this might expose usernames/passwords/tokens!
-    completed_process = subprocess.run(command, capture_output=True)
-    if (completed_process.returncode != 0):
-        raise Exception('{}\n  Exit code={}\n  stderr={}\n  stdout{}'.format(
-            error_message, completed_process.returncode, 
-            '***hidden***' if hide_stderr else completed_process.stderr, 
-            '***hidden***' if hide_stdout else completed_process.stdout))
+# Executes an external command
+# stderr/stdout are hidden to avoid leaking credentials into log files in Travis, so it might be a pain in the butt to debug, sorry, but safety first!
+# if exit_if_fail is set to True, this method will print minimal stacktrace information and exit if a failure is encountered, otherwise, an exception 
+# will be thrown (this is useful if an error will be handled by the invoking method)
+def execute(command, error_message='Error encountered while executing command', exit_if_fail=True):
+    # do not print the command, stderr or stdout! this might expose usernames/passwords/tokens!
+    try:
+        subprocess.run(command, check=True, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+    except:
+        if exit_if_fail:
+            stack = traceback.extract_stack()
+            try:
+                print('{}\n  Error originated at file {}, line {}'.format(error_message, stack[-2].filename, stack[-2].lineno), file=sys.stderr)            
+            except:
+                print('{}\n  No information about the originating call is available.'.format(error_message), file=sys.stderr)
+            exit(1)
+        else:
+            raise Exception()
+
 
         
 if __name__ == "__main__":

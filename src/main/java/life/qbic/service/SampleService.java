@@ -47,4 +47,13 @@ public class SampleService extends QBiCTool<SampleCommand> {
     public boolean isAlive() {
         return true;
     }
+
+    /**
+     * Determines if this service is dead.
+     * 
+     * @return {@code true} if the service is dead, {@code false} otherwise.
+     */
+    public boolean isDead() {
+        return false;
+    }
 }
