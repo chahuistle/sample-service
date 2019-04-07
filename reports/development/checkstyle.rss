@@ -25,9 +25,9 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2019</copyright>
     <item>
-      <title>File: 3,
+      <title>File: 4,
              Errors: 0,
-             Warnings: 32,
+             Warnings: 35,
              Infos: 0
       </title>
             <link>http://github.com/qbicsoftware/sample-service/checkstyle.html</link>
@@ -44,6 +44,20 @@ under the License.
             </tr>
           </thead>
           <tbody>
+                          <tr>
+                <td>
+                  <a href="http://github.com/qbicsoftware/sample-service/checkstyle.html#tool.properties">tool.properties</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
                           <tr>
                 <td>
                   <a href="http://github.com/qbicsoftware/sample-service/checkstyle.html#life.qbic.service.SampleCommand.java">life/qbic/service/SampleCommand.java</a>
@@ -66,7 +80,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  13
+                  16
                 </td>
                 <td>
                   0
