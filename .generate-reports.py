@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# fancy comments come at a cost!
+# -*- coding: UTF-8 -*-
 
 # Script to generate a Maven site and push reports to a branch (gh-pages by default).
 # This script assumes that both git and Maven have been installed and that the following environment variables
