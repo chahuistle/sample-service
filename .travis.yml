@@ -59,8 +59,13 @@ deploy:
     tags: true
 
 # upload maven site to gh-pages branch
-after_deploy: ./.generate-reports.py $TRAVIS_BRANCH $TRAVIS_REPO_SLUG "[skip travis] Updated gh-pages" "This commit was performed from travis-ci.com using a personal access key" "Build ID $TRAVIS_BUILD_ID" "Job ID TRAVIS_JOB_ID" "Branch $TRAVIS_BRANCH" "Log of this build found at $TRAVIS_JOB_WEB_URL"
-
+# we need python 3+
+after_deploy: 
+  - wget --output-document Miniconda3-latest-Linux-x86_64.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && chmod +x Miniconda3-latest-Linux-x86_64.sh && ./Miniconda3-latest-Linux-x86_64.sh -b -f
+  - $HOME/miniconda3/bin/conda update --yes -n base -c defaults conda
+  - $HOME/miniconda3/bin/conda create --yes --channel conda-forge --name qbic-docs-build python=3
+  - echo ". $HOME/miniconda3/etc/profile.d/conda.sh" >> ~/.bashrc && source ~/.bashrc && conda activate qbic-docs-build
+  - ./.generate-reports.py $TRAVIS_BRANCH $TRAVIS_REPO_SLUG "[skip travis] Updated gh-pages" "This commit was performed from travis-ci.com using a personal access key" "Build ID $TRAVIS_BUILD_ID" "Job ID TRAVIS_JOB_ID" "Branch $TRAVIS_BRANCH" "Log of this build found at $TRAVIS_JOB_WEB_URL"
 
 env:
   global:
